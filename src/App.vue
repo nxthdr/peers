@@ -1,47 +1,32 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
   </header>
 
   <main>
-    <TheWelcome />
+    <h1>Peers</h1>
+    <p>Number of peers: {{ peers.length }}</p>
+    <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">ASN</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="peer in peers">
+        <td>{{peer}}</td>
+      </tr>
+    </tbody>
+  </table>
   </main>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+<script setup lang="ts">
+  import { ref } from 'vue'
+  const peers = ref<string[]>([]);
+  fetch('https://clickhouse.nxthdr.dev?user=read&password=read', {
+        method: 'POST',
+        body: 'SELECT DISTINCT path[1] AS peer FROM nxthdr.bgp_updates WHERE peer != 0 ORDER BY peer FORMAT Json',
+      })
+      .then(response => response.json())
+      .then(response => { response.data.forEach((peer: { peer: string }) => {  peers.value.push(peer.peer) }) });
+</script>
