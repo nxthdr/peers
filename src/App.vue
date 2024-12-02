@@ -10,7 +10,8 @@
     <table class="table">
     <tbody>
       <tr v-for="peer in filteredPeers">
-        <td>{{ peer }}</td>
+        <td>{{ peer.asn }}</td>
+        <td>{{ peer.asname }}</td>
       </tr>
     </tbody>
   </table>
@@ -19,26 +20,36 @@
 
 <script setup lang="ts">
   import { ref, computed } from 'vue'
-  const peers = ref<string[]>([]);
+  interface Peer {
+    asn: string;
+    asname: string;
+  }
+  const peers = ref<Peer[]>([]);
   const filterInput = ref<string>('');
 
   fetch('https://clickhouse.nxthdr.dev?user=read&password=read', {
         method: 'POST',
         body: `
-          SELECT DISTINCT path[1] AS peer
+          WITH path[1] as asn
+          SELECT
+            asn,
+            dictGet('nxthdr.ipinfo_asn_asname', 'as_name', asn) AS asname
           FROM nxthdr.bgp_updates
-          WHERE peer != 0 AND timestamp >= subtractHours(now(), 24)
-          ORDER BY peer
+          WHERE asn != 0 AND timestamp >= subtractHours(now(), 24)
+          GROUP BY asn
+          ORDER BY asn
           FORMAT Json
         `,
       })
       .then(response => response.json())
-      .then(response => { response.data.forEach((peer: { peer: string }) => {  peers.value.push(peer.peer) }) });
+      .then(response => { response.data.forEach((peer: { asn: string, asname: string }) => {
+        peers.value.push(peer) })
+      });
 
   const filteredPeers = computed(() => {
     return peers.value.filter((peer) => {
       if (!filterInput.value) return true;
-      return peer == filterInput.value;
+      return peer.asn == filterInput.value || peer.asname.toLowerCase().includes(filterInput.value.toLowerCase());
     } )
   })
 </script>
