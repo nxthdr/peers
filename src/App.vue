@@ -33,8 +33,8 @@
           WITH path[1] as asn
           SELECT
             asn,
-            dictGet('nxthdr.ipinfo_asn_asname', 'as_name', asn) AS asname
-          FROM nxthdr.bgp_updates
+            dictGet('ipinfo.asn_asname', 'as_name', asn) AS asname
+          FROM risotto.updates
           WHERE asn != 0 AND timestamp >= subtractHours(now(), 24)
           GROUP BY asn
           ORDER BY asn

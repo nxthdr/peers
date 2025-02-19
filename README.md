@@ -1,7 +1,7 @@
 # peers
 
 > [!WARNING]
-> Peers is currently in early-stage development.
+> Currently in early-stage development.
 
 Simple web page displaying the list of AS215011 peers based on BMP data.
 
