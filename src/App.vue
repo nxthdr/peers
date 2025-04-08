@@ -34,7 +34,7 @@
           SELECT
             asn,
             dictGet('ipinfo.asn_asname', 'as_name', asn) AS asname
-          FROM risotto.updates
+          FROM bmp.updates
           WHERE asn != 0 AND timestamp >= subtractHours(now(), 24)
           GROUP BY asn
           ORDER BY asn
