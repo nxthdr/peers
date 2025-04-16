@@ -35,7 +35,7 @@
             asn,
             dictGet('ipinfo.asn_asname', 'as_name', asn) AS asname
           FROM bmp.updates
-          WHERE asn != 0 AND timestamp >= subtractHours(now(), 24)
+          WHERE asn != 0 AND time_received_ns >= subtractHours(now(), 24)
           GROUP BY asn
           ORDER BY asn
           FORMAT Json
