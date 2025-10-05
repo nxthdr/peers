@@ -1,8 +1,9 @@
 FROM node:lts-alpine AS build
 
 WORKDIR /app
-COPY package*.json ./
+COPY package.json ./
 
+# Install dependencies - let npm resolve optional deps for the current platform
 RUN npm install
 
 COPY . .
