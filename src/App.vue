@@ -30,7 +30,7 @@
   fetch('https://clickhouse.nxthdr.dev?user=read&password=read', {
         method: 'POST',
         body: `
-          WITH path[1] as asn
+          WITH as_path[1] as asn
           SELECT
             asn,
             dictGet('ipinfo.asn_asname', 'as_name', asn) AS asname
