@@ -10,6 +10,7 @@
     <table class="table">
     <tbody>
       <tr v-for="peer in filteredPeers">
+        <td>{{ countryFlag(peer.country) }}</td>
         <td>{{ peer.asn }}</td>
         <td>{{ peer.asname }}</td>
       </tr>
@@ -23,6 +24,12 @@
   interface Peer {
     asn: string;
     asname: string;
+    country: string;
+  }
+
+  function countryFlag(code: string): string {
+    if (!code || code.length !== 2) return '';
+    return String.fromCodePoint(...[...code.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65));
   }
   const peers = ref<Peer[]>([]);
   const filterInput = ref<string>('');
@@ -33,7 +40,8 @@
           WITH as_path[1] as asn
           SELECT
             asn,
-            dictGet('ipinfo.asn_to_name', 'as_name', asn) AS asname
+            dictGet('ipinfo.asn_to_name', 'as_name', asn) AS asname,
+            any(country_asn(peer_addr, 'country')) AS country
           FROM bmp.updates
           WHERE asn != 0 AND time_received_ns >= subtractHours(now(), 24)
           GROUP BY asn
@@ -42,7 +50,7 @@
         `,
       })
       .then(response => response.json())
-      .then(response => { response.data.forEach((peer: { asn: string, asname: string }) => {
+      .then(response => { response.data.forEach((peer: { asn: string, asname: string, country: string }) => {
         peers.value.push(peer) })
       });
 
